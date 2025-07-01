@@ -1,0 +1,16 @@
+[Unit]
+Description=Mount NFS share to /mnt/share
+After=network-online.target
+Wants=network-online.target
+Before=remote-fs.target
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStartPre=/bin/mkdir -p /mnt/share
+ExecStart=/bin/mount -o nolock @NFS_SERVER@:/home/sihokim/rpi_share /mnt/share
+TimeoutSec=10
+
+[Install]
+WantedBy=remote-fs.target

@@ -1,0 +1,5 @@
+PACKAGECONFIG += "python3"
+
+FILES:${PN} += " \
+    ${PYTHON_SITEPACKAGES_DIR} \
+"

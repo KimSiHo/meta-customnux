@@ -1,0 +1,6 @@
+[Unit]
+Description=SWUpdate post handler
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ota-status-check.sh

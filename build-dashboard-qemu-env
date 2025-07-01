@@ -1,0 +1,40 @@
+#!/bin/sh
+
+function find_top_dir()
+{
+    local TOPDIR="poky"
+# move into script file path
+    cd $(dirname ${BASH_SOURCE[0]})
+
+    if [ -d $TOPDIR ]; then
+        echo $(pwd)
+    else
+        while [ ! -d $TOPDIR ] && [ $(pwd) != "/" ];
+        do
+             cd ..
+        done
+
+        if [ -d $TOPDIR ]; then
+            echo $(pwd)
+        else
+            echo "/dev/null"
+        fi
+    fi
+}
+
+ROOT=$(find_top_dir)
+echo ${ROOT}
+export TEMPLATECONF=${ROOT}/poky/meta-customnux/meta-customnux-distro/template/qemu
+export MACHINE="qemuarm64-custom"
+export DISTRO="qemu-custom"
+
+function build_target() {
+    source ${ROOT}/poky/oe-init-build-env ../build-dashboard-qemu
+    bitbake-layers add-layer ../meta-customnux/meta-customnux-dashboard
+
+    if [ "$phase" = "dev" ]; then
+        bitbake-layers add-layer ../meta-customnux/meta-customnux-dashboard-dev
+    fi
+}
+
+build_target

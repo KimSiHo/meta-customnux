@@ -1,0 +1,10 @@
+[Unit]
+Description=3분마다 OTA 업데이트 확인
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=3min
+Unit=ota-check.service
+
+[Install]
+WantedBy=timers.target
