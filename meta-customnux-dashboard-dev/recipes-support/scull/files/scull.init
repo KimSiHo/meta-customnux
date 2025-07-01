@@ -1,0 +1,154 @@
+#!/bin/bash -xe
+
+# initial settings
+DEBUG=1  # 1은 디버그 활성화, 0은 비활성화
+DEVICE="scull"
+SECTION="scull"
+INSMOD=/sbin/insmod
+
+# device 파일 생성 (각 요소를 "file-suffix minor-number"로 저장)
+FILES="
+0 0
+1 1
+2 2
+3 3
+priv 16
+pipe0 32
+pipe1 33
+pipe2 34
+pipe3 35
+single 48
+uid 64
+wuid 80
+"
+
+debug() {
+  if [ "$DEBUG" -eq 1 ]; then
+    echo "$@"
+  fi
+}
+
+# found insmod path
+KERNEL=`uname -r`
+MODULE_DIR="/lib/modules/${KERNEL}/kernel/drivers/${SECTION}"
+if [ ! -d "$MODULE_DIR" ]; then
+  echo "Directory does not exist: $MODULE_DIR"
+fi
+debug "MODULE_DIR: $MODULE_DIR"
+
+# Root or die
+if [ "$(id -u)" != "0" ]
+then
+  echo "You must be root to load or unload kernel modules"
+  exit 1
+fi
+
+# Read configuration file
+CFG=/etc/${DEVICE}.conf
+if [ -r $CFG ]; then
+  OWNER=$(awk '$1 == "owner" {print $2}' "$CFG")
+  GROUP=$(awk '$1 == "group" {print $2}' "$CFG")
+  MODE=$(awk '$1 == "mode" {print $2}' "$CFG")
+  # The options string may include extra blanks or only blanks
+  OPTIONS=$(awk '$1 == "options" {$1=""; sub(/^ /, ""); print}' "$CFG")
+fi
+debug "OWNER: $OWNER, GROUP: $GROUP, MODE: $MODE, OPTIONS: $OPTIONS"
+
+# Create device files
+function create_files () {
+  cd /dev
+  local dev_file_list=""
+  local file
+
+  while true
+  do
+    if [ $# -lt 2 ]; then break; fi
+    file="${DEVICE}$1"
+    mknod "$file" c "$MAJOR" "$2"
+    dev_file_list="$dev_file_list $file"
+    shift 2
+  done
+
+  if [ -n "$OWNER" ]; then chown "$OWNER" $dev_file_list; fi
+  if [ -n "$GROUP" ]; then chgrp "$GROUP" $dev_file_list; fi
+  if [ -n "$MODE"  ]; then chmod "$MODE"  $dev_file_list; fi
+}
+
+# Remove device files
+function remove_files () {
+  cd /dev
+  local dev_file_list=""
+  local file
+
+  while true
+  do
+    if [ $# -lt 2 ]; then break; fi
+    file="${DEVICE}$1"
+    dev_file_list="$dev_file_list $file"
+    shift 2
+  done
+  debug "dev_file_list: $dev_file_list"
+
+  rm -f $dev_file_list
+}
+
+# Load and create files
+function device_specific_post_load () {
+    true;
+}
+
+function load_device () {
+  if [ -f "$MODULE_DIR/$DEVICE.ko" ]; then
+    module_path=$MODULE_DIR/$DEVICE.ko
+  elif [ -f "./$DEVICE.ko" ]; then
+    module_path=./$DEVICE.ko
+  else
+    module_path=$DEVICE # let insmod/modprobe guess
+  fi
+  debug "loading module ($module_path)"
+
+  if $INSMOD $module_path $OPTIONS; then
+    MAJOR=$(awk '$2=="'"$DEVICE"'" {print $1}' /proc/devices)
+    debug "MAJOR: $MAJOR"
+    remove_files $FILES
+    create_files $FILES
+    device_specific_post_load
+  else
+    echo "Load Device FAIL"
+  fi
+}
+
+# Unload and remove files
+function device_specific_pre_unload () {
+    true;
+}
+
+function unload_device () {
+  device_specific_pre_unload
+  /sbin/rmmod $DEVICE
+  remove_files $FILES
+}
+
+case "$1" in
+  start)
+    echo "Loading $DEVICE"
+    load_device
+    echo "Loading $DEVICE SUCCESS"
+    ;;
+  stop)
+    echo "Unloading $DEVICE"
+    unload_device
+    echo "Unloading $DEVICE SUCCESS"
+    ;;
+  restart)
+    echo "Reloading $DEVICE"
+    unload_device
+    load_device
+    echo "Reloading $DEVICE SUCCESS"
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit 0

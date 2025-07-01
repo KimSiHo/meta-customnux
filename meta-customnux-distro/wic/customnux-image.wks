@@ -1,0 +1,3 @@
+part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --align 4096 --size 100
+part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label rootfs_a --align 4 --size=0 --use-uuid --extra-space 2048
+part --source empty --ondisk mmcblk0 --fstype=ext4 --label rootfs_b --align 4 --size=3072

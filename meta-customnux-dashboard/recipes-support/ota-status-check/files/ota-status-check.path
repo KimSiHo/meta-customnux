@@ -1,0 +1,9 @@
+[Unit]
+Description=file creation observer: /tmp/swu.status
+
+[Path]
+PathExists=/tmp/swu.status
+Unit=ota-status-check.service
+
+[Install]
+WantedBy=multi-user.target

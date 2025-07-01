@@ -1,0 +1,6 @@
+[Unit]
+Description=OTA 서버에서 .swu 업데이트 확인
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ota-check.sh

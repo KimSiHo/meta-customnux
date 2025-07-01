@@ -1,0 +1,17 @@
+" 줄 번호 추가
+set number
+" 인코딩 설정
+set encoding=utf-8
+" 문자 표시
+set list
+set listchars=space:-,tab:>>,trail:~
+" 탭 공백 전환
+set expandtab
+set tabstop=2
+set shiftwidth=2
+" 테마 변경
+colorscheme desert
+" 백업 비활성화
+set nobackup
+set nowritebackup
+set noswapfile

@@ -1,0 +1,2 @@
+ENABLE_UART = "1"
+VC4GRAPHICS = "0"
