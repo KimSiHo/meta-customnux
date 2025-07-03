@@ -31,4 +31,4 @@ done
 total_end=$(date +%s)
 total_duration=$((total_end - total_start))
 echo "총 실행 시간: ${total_duration}s"
-# sound
+sound

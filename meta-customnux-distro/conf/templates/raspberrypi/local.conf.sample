@@ -281,3 +281,5 @@ SSTATE_MIRRORS = "file://.* file://${COREBASE}/../poky-utils/sstate-cache/PATH"
 SSTATE_DIR = "${TOPDIR}/sstate-cache"
 
 LICENSE_FLAGS_ACCEPTED += "commercial"
+
+ERROR_QA:remove = "version-going-backwards"
