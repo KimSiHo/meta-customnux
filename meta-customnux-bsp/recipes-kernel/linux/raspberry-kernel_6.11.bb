@@ -21,3 +21,8 @@ PV = "${LINUX_VERSION}"
 DEPENDS += "coreutils-native"
 
 PROVIDES = "virtual/kernel"
+
+do_deploy:append() {
+    install -m 0644 ${D}/boot/vmlinux-${KERNEL_VERSION} ${DEPLOYDIR}/vmlinux
+    install -m 0644 ${D}/boot/System.map-${KERNEL_VERSION} ${DEPLOYDIR}/System.map
+}

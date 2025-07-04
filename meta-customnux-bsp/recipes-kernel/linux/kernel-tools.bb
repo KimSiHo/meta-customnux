@@ -21,11 +21,11 @@ B = "${STAGING_KERNEL_BUILDDIR}"
 do_install[depends] += "virtual/kernel:do_shared_workdir"
 do_install[depends] += "virtual/kernel:do_install"
 
-KERNEL_TOOL_PATH = "${datadir}/kernel-tools/workqueue"
+KERNEL_TOOL_PATH = "${datadir}/kernel-tools"
 
 do_install() {
-    install -d ${D}${KERNEL_TOOL_PATH}
-    cp -v ${S}/tools/workqueue/*.py ${D}${KERNEL_TOOL_PATH}/
+    install -d ${D}${KERNEL_TOOL_PATH}/workqueue
+    cp -v ${S}/tools/workqueue/*.py ${D}${KERNEL_TOOL_PATH}/workqueue/
 }
 
 FILES:${PN} += "${KERNEL_TOOL_PATH}"

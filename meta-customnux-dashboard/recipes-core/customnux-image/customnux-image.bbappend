@@ -3,6 +3,7 @@ BASIC_INSTALL = " \
     base-files \
     kernel-devsrc \
     kernel-tools \
+    kernel-selftest \
 "
 
 PYTHON_INSTALL = " \
@@ -10,6 +11,7 @@ PYTHON_INSTALL = " \
     python3-pip \
     python3-numpy \
     python3-logging \
+    python3-drgn \
 "
 
 PYQT5_INSTALL = " \
